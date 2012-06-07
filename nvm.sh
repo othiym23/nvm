@@ -85,6 +85,7 @@ nvm()
       echo "Usage:"
       echo "    nvm help                    Show this message"
       echo "    nvm install <version>       Download and install a <version>"
+      echo "    nvm install latest          Download and install the latest version"
       echo "    nvm uninstall <version>     Uninstall a version"
       echo "    nvm use <version>           Modify PATH to use <version>"
       echo "    nvm run <version> [<args>]  Run <version> with <args> as arguments"
@@ -113,7 +114,14 @@ nvm()
         nvm help
         return
       fi
-      VERSION=`nvm_version $2`
+
+      if [ "$2" = "latest" ]; then
+          local VERSION=`nvm ls remote | tail -n1`
+          [ -z $VERSION ] && echo "nvm: install failed." && return
+          echo "latest is $VERSION"
+      else
+          local VERSION=`nvm_version $2`
+      fi
 
       [ -d "$NVM_DIR/$VERSION" ] && echo "$VERSION is already installed." && return
 
