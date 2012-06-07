@@ -41,7 +41,11 @@ nvm_ls()
         return
     fi
     # If it looks like an explicit version, don't do anything funny
-    if [[ "$PATTERN" == v?*.?*.?* ]]; then
+    if [ "$PATTERN" = 'remote' ]; then
+        [ "`curl -Is "http://nodejs.org/dist/" | grep '200 OK'`" = '' ] && echo "nvm: get remote list failed." && return
+        curl -s http://nodejs.org/dist/ | egrep -o 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -u -t. -k 1.2,1n -k 2,2n -k 3,3n
+        return
+    elif [[ "$PATTERN" == v?*.?*.?* ]]; then
         VERSIONS="$PATTERN"
     else
         VERSIONS=`(cd $NVM_DIR; \ls -d v${PATTERN}* 2>/dev/null) | sort -t. -k 1.2,1n -k 2,2n -k 3,3n`
@@ -86,6 +90,7 @@ nvm()
       echo "    nvm run <version> [<args>]  Run <version> with <args> as arguments"
       echo "    nvm ls                      List installed versions"
       echo "    nvm ls <version>            List versions matching a given description"
+      echo "    nvm ls remote               List versions what can be installed by nvm"
       echo "    nvm deactivate              Undo effects of NVM on current shell"
       echo "    nvm alias [<pattern>]       Show all aliases beginning with <pattern>"
       echo "    nvm alias <name> <version>  Set an alias named <name> pointing to <version>"
